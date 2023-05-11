@@ -9,26 +9,26 @@ include("components/rf_ch4.jl")
 include("components/rf_ch4h2o.jl")
 include("components/rf_o3.jl")
 
-function get_model(;rcp_scenario::String="RCP85", start_year::Int=1765, end_year::Int=2300)
+function get_model(; rcp_scenario::String="RCP85", start_year::Int=1765, end_year::Int=2300)
 
     # ---------------------------------------------
     # Load and clean up necessary data.
     # ---------------------------------------------
 
     # Load RCP emissions and concentration scenario values (RCP options = "RCP26" or "RCP85").
-    rcp_emissions      = DataFrame(load(joinpath(@__DIR__, "..", "data", rcp_scenario*"_EMISSIONS.csv"), skiplines_begin=36))
-    rcp_concentrations = DataFrame(load(joinpath(@__DIR__, "..", "data", rcp_scenario*"_CONCENTRATIONS.csv"), skiplines_begin=37))
+    rcp_emissions = DataFrame(load(joinpath(@__DIR__, "..", "data", rcp_scenario * "_EMISSIONS.csv"), skiplines_begin=36))
+    rcp_concentrations = DataFrame(load(joinpath(@__DIR__, "..", "data", rcp_scenario * "_CONCENTRATIONS.csv"), skiplines_begin=37))
 
     # Load temperature scenario (mean response from SNEASY across 100,000 posterior parameter samples).
-    rcp_temperature    = DataFrame(load(joinpath(@__DIR__, "..", "data", rcp_scenario*"_temperature_sneasy_1765_2300.csv")))
+    rcp_temperature = DataFrame(load(joinpath(@__DIR__, "..", "data", rcp_scenario * "_temperature_sneasy_1765_2300.csv")))
 
     # Load fossil CO₂ emissions scenario to calculate historic tropospheric O₃ forcing (this scenario is specific to how MAGICC calculates this forcing).
-    foss_hist_for_O₃   = DataFrame(load(joinpath(@__DIR__, "..", "data", "FOSS_HIST_magicc.csv")))
+    foss_hist_for_O₃ = DataFrame(load(joinpath(@__DIR__, "..", "data", "FOSS_HIST_magicc.csv")))
 
     # Find indices for start and end years to crop scenarios to correct time frame.
     start_index, end_index = findall((in)([start_year, end_year]), rcp_emissions.YEARS)
-    rcp_emissions    = rcp_emissions[start_index:end_index, :]
-    rcp_temperature  = rcp_temperature[start_index:end_index, :]
+    rcp_emissions = rcp_emissions[start_index:end_index, :]
+    rcp_temperature = rcp_temperature[start_index:end_index, :]
     foss_hist_for_O₃ = foss_hist_for_O₃[start_index:end_index, :]
 
     # Set initial CH₄ and N₂O concentrations to RCP 1765 values.
@@ -97,11 +97,11 @@ function get_model(;rcp_scenario::String="RCP85", start_year::Int=1765, end_year
     # ---------------------------------------------
     # Create connections between Mimi components.
     # ---------------------------------------------
-    connect_param!(m, :rf_ch4,    :CH₄, :ch4_cycle, :CH₄)
+    connect_param!(m, :rf_ch4, :CH₄, :ch4_cycle, :CH₄)
     connect_param!(m, :rf_ch4h2o, :CH₄, :ch4_cycle, :CH₄)
-    connect_param!(m, :rf_o3,     :CH₄, :ch4_cycle, :CH₄)
+    connect_param!(m, :rf_o3, :CH₄, :ch4_cycle, :CH₄)
 
-    return(m)
+    return (m)
 end
 
 end #module
